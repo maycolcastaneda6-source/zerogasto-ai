@@ -46,7 +46,7 @@
         lucide.createIcons();
         
         // CONFIGURACIÓN DE IA
-        const API_KEY = "TU_LLAVE_AQUI"; // AIzaSyAhMG7gkCCSdyFql-BqmqiYhVEHomOJLOM
+        const API_KEY = "AIzaSyAhMG7gkCCSdyFql-BqmqiYhVEHomOJLOM"; //
         let chatHistory = [
             { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con sobras, da recetas creativas y menciona ofertas de Plaza Vea, Tottus o Metro si faltan ingredientes." }] },
             { role: "model", parts: [{ text: "Entendido. Soy tu asistente ZeroGasto AI especializado en Perú. ¡Empecemos!" }] }
@@ -65,7 +65,7 @@
 
         async function sendMessage() {
             const text = userInput.value.trim();
-            if (!text || API_KEY === "TU_LLAVE_AQUI") return;
+            if (!text || API_KEY === "AIzaSyAhMG7gkCCSdyFql-BqmqiYhVEHomOJLOM") return;
 
             addMessage(text, true);
             userInput.value = '';
