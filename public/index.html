@@ -9,6 +9,11 @@
     <style>
         .primary-bg { background-color: #22c55e; }
         .primary-text { color: #22c55e; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-results { animation: slideUp 0.4s ease-out forwards; }
     </style>
 </head>
 <body class="bg-[#F9F7F2] font-sans min-h-screen">
@@ -22,11 +27,11 @@
                     ZeroGasto <span class="text-green-500 italic">AI</span>
                 </h1>
                 <p class="text-lg text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed">
-                    Escanea tus ingredientes. Nuestra IA en <span class="text-red-600 font-bold">Perú</span> optimiza tu compra en <b>Makro, Tottus, Plaza Vea y Amazon.</b>
+                    Escanea tus ingredientes. Nuestra IA en <span class="text-red-600 font-bold">Perú</span> optimiza tu compra en todos los supermercados locales.
                 </p>
             </div>
 
-            <div class="max-w-2xl mx-auto mb-16">
+            <div class="max-w-2xl mx-auto mb-10">
                 <div class="relative group">
                     <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
                         <i data-lucide="search" class="w-6 h-6"></i>
@@ -47,39 +52,98 @@
                 <input type="file" id="fileInput" class="hidden" accept="image/*,video/*">
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Ahorro</span>
-                    <p class="font-bold text-slate-800">Plaza Vea / Metro</p>
+            <div id="contenedorResultados"></div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 mb-12">
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ahorro Diario</p>
+                    <p class="font-bold text-slate-700">Vea • Metro • Tottus</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Mayorista</span>
-                    <p class="font-bold text-slate-800">Makro</p>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Al por mayor</p>
+                    <p class="font-bold text-slate-700">Makro</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Calidad</span>
-                    <p class="font-bold text-slate-800">Tottus / Wong</p>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Premium</p>
+                    <p class="font-bold text-slate-700">Wong • Vivanda</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Internacional</span>
-                    <p class="font-bold text-slate-800">Amazon</p>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
+                    <p class="font-bold text-slate-700">Amazon</p>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        // Inicializar Iconos
+        // Inicializar Iconos de Lucide
         lucide.createIcons();
 
         function generarReceta() {
-            const input = document.getElementById('ingredienteInput').value;
-            if(!input) {
+            const ingrediente = document.getElementById('ingredienteInput').value;
+            
+            if(!ingrediente) {
                 alert("Por favor, escribe un ingrediente primero.");
                 return;
             }
-            alert("¡IA Conectada! Buscando ofertas para " + input + " en Tottus, Makro y Amazon...");
-            // Aquí conectaremos la lógica de tus botones de afiliados
+
+            const contenedor = document.getElementById('contenedorResultados');
+            
+            // Mostrar los botones de todos los supermercados peruanos
+            contenedor.innerHTML = `
+                <div class="max-w-2xl mx-auto p-6 bg-white rounded-[2.5rem] shadow-2xl border-2 border-green-100 animate-results">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="text-green-500"></i>
+                        Comparar precios para "${ingrediente}":
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="https://www.plazavea.com.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-all group">
+                            <span class="font-black text-red-600 italic text-lg">plazaVea</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-red-300 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.metro.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-2xl transition-all group">
+                            <span class="font-black text-yellow-600 text-lg uppercase tracking-tighter">Metro</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.tottus.com.pe/buscar?q=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-2xl transition-all group">
+                            <span class="font-black text-green-700 text-lg tracking-tight">TOTTUS</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.makro.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-2xl transition-all group">
+                            <span class="font-black text-blue-700 italic text-lg">makro</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.wong.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-slate-50 hover:bg-red-50 rounded-2xl transition-all group border border-slate-100">
+                            <span class="font-black text-red-700 text-lg">Wong</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-red-200 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.vivanda.com.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 rounded-2xl transition-all group">
+                            <span class="font-black text-purple-700 text-lg italic">Vivanda</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-purple-300 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <a href="https://www.amazon.com/s?k=${ingrediente}&tag=zerogastoperu-21" target="_blank" class="sm:col-span-2 flex items-center justify-between p-5 bg-orange-100 hover:bg-orange-200 rounded-2xl border-2 border-orange-300 transition-all group shadow-md">
+                            <div class="flex flex-col">
+                                <span class="font-black text-orange-800 text-xl tracking-tighter">amazon.com</span>
+                                <span class="text-[10px] text-orange-600 font-bold uppercase">Envío directo a Perú</span>
+                            </div>
+                            <i data-lucide="external-link" class="w-6 h-6 text-orange-500 group-hover:scale-110 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // Refrescar iconos en el nuevo HTML inyectado
+            lucide.createIcons();
+            
+            // Hacer scroll suave hacia abajo para ver los resultados
+            contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     </script>
 </body>
