@@ -43,8 +43,8 @@
     <script>
         lucide.createIcons();
         
-        // REVISA QUE ESTA LLAVE SEA LA CORRECTA
-        const API_KEY = "AIzaSyBUIsQB9PeMUxQvSFlOwoLTjSPruxTdXQg"; 
+        // 1. LLAVE NUEVA ACTUALIZADA
+        const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; 
 
         let chatHistory = [
             { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de Plaza Vea, Tottus, Metro, Vivanda y Amazon si faltan ingredientes." }] },
@@ -71,8 +71,9 @@
             chatHistory.push({ role: "user", parts: [{ text: text }] });
 
             try {
-                // LLAMADA TÉCNICA CORRECTA
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;  
+                // 2. URL TÉCNICA CORREGIDA (SIN ESPACIOS NI PUNTOS EXTRA)
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -87,11 +88,11 @@
                     addMessage(aiText);
                 } else {
                     console.error("Error de la API:", data);
-                    addMessage("La IA recibió el mensaje pero hay un problema con la API Key. Por favor, crea una nueva en Google AI Studio.");
+                    addMessage("Casi listo. Si ves este mensaje, refresca la página o verifica que tu nueva llave no tenga restricciones de IP en Google Cloud.");
                 }
             } catch (e) {
                 console.error("Error de conexión:", e);
-                addMessage("Error de conexión. Revisa tu internet o la configuración del sitio.");
+                addMessage("Error de conexión. Revisa tu internet.");
             }
         }
 
