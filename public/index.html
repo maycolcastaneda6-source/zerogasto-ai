@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZeroGasto AI - Ahorro en Perú</title>
+    <title>ZeroGasto AI - Despensa Inteligente Perú</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .primary-bg { background-color: #22c55e; }
-        .primary-text { color: #22c55e; }
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -27,123 +25,137 @@
                     ZeroGasto <span class="text-green-500 italic">AI</span>
                 </h1>
                 <p class="text-lg text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed">
-                    Escanea tus ingredientes. Nuestra IA en <span class="text-red-600 font-bold">Perú</span> optimiza tu compra en todos los supermercados locales.
+                    ¡Cocina con lo que tienes y ahorra hoy! Nuestra IA en <span class="text-red-600 font-bold">Perú</span> crea recetas para evitar el desperdicio.
                 </p>
             </div>
 
             <div class="max-w-2xl mx-auto mb-10">
-                <div class="relative group">
-                    <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                        <i data-lucide="search" class="w-6 h-6"></i>
+                <div class="bg-white p-2 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white">
+                    <div class="relative">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                            <i data-lucide="refrigerator" class="w-6 h-6"></i>
+                        </div>
+                        <input type="text" id="ingredienteInput" placeholder="Ej: 2 huevos, media cebolla, arroz frío..." 
+                               class="w-full h-20 pl-14 pr-4 rounded-3xl border-0 bg-transparent text-xl focus:ring-0 outline-none">
                     </div>
-                    <input type="text" id="ingredienteInput" placeholder="¿Qué ingredientes tienes?" 
-                           class="w-full h-20 pl-14 pr-40 rounded-3xl border-0 bg-white text-xl focus:ring-4 focus:ring-green-500/20 transition-all outline-none shadow-xl shadow-slate-200/50">
                     
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
-                        <button onclick="document.getElementById('fileInput').click()" class="p-3 bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 hover:text-green-600 transition-all">
-                            <i data-lucide="camera" class="w-6 h-6"></i>
+                    <div class="flex flex-wrap gap-2 p-3 border-t border-slate-50">
+                        <button onclick="setTiempo('10 min')" class="px-4 py-2 rounded-full bg-slate-100 text-slate-600 text-sm font-bold hover:bg-green-100 hover:text-green-600 transition-all flex items-center gap-2">
+                            <i data-lucide="clock-1" class="w-4 h-4"></i> Tengo 10 min
                         </button>
-                        <button onclick="generarReceta()" class="h-14 px-6 bg-green-500 text-white rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg">
+                        <button onclick="setTiempo('30 min')" class="px-4 py-2 rounded-full bg-slate-100 text-slate-600 text-sm font-bold hover:bg-green-100 hover:text-green-600 transition-all flex items-center gap-2">
+                            <i data-lucide="clock-3" class="w-4 h-4"></i> Tengo 30 min
+                        </button>
+                        <button onclick="generarReceta()" class="ml-auto h-14 px-8 bg-green-500 text-white rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-green-200">
                             <i data-lucide="sparkles" class="w-5 h-5"></i>
-                            <span>Cocinar</span>
+                            <span>¡Generar Receta Mágica!</span>
                         </button>
                     </div>
                 </div>
-                <input type="file" id="fileInput" class="hidden" accept="image/*,video/*">
             </div>
 
             <div id="contenedorResultados"></div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 mb-12">
-                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ahorro Diario</p>
-                    <p class="font-bold text-slate-700">Vea • Metro • Tottus</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 mb-12 opacity-60">
+                <div class="text-center p-4">
+                    <i data-lucide="leaf" class="w-6 h-6 mx-auto mb-2 text-green-500"></i>
+                    <p class="text-xs font-bold uppercase">Cero Desperdicio</p>
                 </div>
-                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Al por mayor</p>
-                    <p class="font-bold text-slate-700">Makro</p>
+                <div class="text-center p-4">
+                    <i data-lucide="wallet" class="w-6 h-6 mx-auto mb-2 text-blue-500"></i>
+                    <p class="text-xs font-bold uppercase">Más Ahorro</p>
                 </div>
-                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Premium</p>
-                    <p class="font-bold text-slate-700">Wong • Vivanda</p>
+                <div class="text-center p-4">
+                    <i data-lucide="zap" class="w-6 h-6 mx-auto mb-2 text-yellow-500"></i>
+                    <p class="text-xs font-bold uppercase">Cocina Express</p>
                 </div>
-                <div class="bg-white/50 p-4 rounded-2xl border border-slate-200 text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
-                    <p class="font-bold text-slate-700">Amazon</p>
+                <div class="text-center p-4">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 mx-auto mb-2 text-red-500"></i>
+                    <p class="text-xs font-bold uppercase">Precios Perú</p>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        // Inicializar Iconos de Lucide
         lucide.createIcons();
+        let tiempoSeleccionado = "20 min";
+
+        function setTiempo(t) {
+            tiempoSeleccionado = t;
+            alert("Tiempo ajustado a: " + t);
+        }
 
         function generarReceta() {
             const ingrediente = document.getElementById('ingredienteInput').value;
-            
             if(!ingrediente) {
-                alert("Por favor, escribe un ingrediente primero.");
+                alert("Chef, primero dime qué tienes en la despensa.");
                 return;
             }
 
             const contenedor = document.getElementById('contenedorResultados');
             
-            // Mostrar los botones de todos los supermercados peruanos
             contenedor.innerHTML = `
-                <div class="max-w-2xl mx-auto p-6 bg-white rounded-[2.5rem] shadow-2xl border-2 border-green-100 animate-results">
-                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <i data-lucide="shopping-bag" class="text-green-500"></i>
-                        Comparar precios para "${ingrediente}":
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <a href="https://www.plazavea.com.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-all group">
-                            <span class="font-black text-red-600 italic text-lg">plazaVea</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-red-300 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.metro.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-2xl transition-all group">
-                            <span class="font-black text-yellow-600 text-lg uppercase tracking-tighter">Metro</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.tottus.com.pe/buscar?q=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-2xl transition-all group">
-                            <span class="font-black text-green-700 text-lg tracking-tight">TOTTUS</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.makro.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-2xl transition-all group">
-                            <span class="font-black text-blue-700 italic text-lg">makro</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.wong.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-slate-50 hover:bg-red-50 rounded-2xl transition-all group border border-slate-100">
-                            <span class="font-black text-red-700 text-lg">Wong</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-red-200 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.vivanda.com.pe/busqueda?ft=${ingrediente}" target="_blank" class="flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 rounded-2xl transition-all group">
-                            <span class="font-black text-purple-700 text-lg italic">Vivanda</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-purple-300 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <a href="https://www.amazon.com/s?k=${ingrediente}&tag=zerogastoperu-21" target="_blank" class="sm:col-span-2 flex items-center justify-between p-5 bg-orange-100 hover:bg-orange-200 rounded-2xl border-2 border-orange-300 transition-all group shadow-md">
-                            <div class="flex flex-col">
-                                <span class="font-black text-orange-800 text-xl tracking-tighter">amazon.com</span>
-                                <span class="text-[10px] text-orange-600 font-bold uppercase">Envío directo a Perú</span>
+                <div class="max-w-2xl mx-auto animate-results">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-2 border-green-500 mb-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">Receta de Aprovechamiento</span>
+                                <h2 class="text-3xl font-black text-slate-800 mt-2">Salteado "ZeroGasto" Maestro</h2>
+                                <p class="text-slate-500 flex items-center gap-1 mt-1">
+                                    <i data-lucide="clock" class="w-4 h-4"></i> Listo en ${tiempoSeleccionado}
+                                </p>
                             </div>
-                            <i data-lucide="external-link" class="w-6 h-6 text-orange-500 group-hover:scale-110 transition-transform"></i>
-                        </a>
+                            <div class="bg-yellow-100 p-3 rounded-2xl text-yellow-700">
+                                <i data-lucide="utensils" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="flex gap-4">
+                                <span class="bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center font-bold text-slate-500 shrink-0">1</span>
+                                <p class="text-slate-700 text-lg">Corta tus <b>${ingrediente}</b> en cubos pequeños para maximizar el sabor.</p>
+                            </div>
+                            <div class="flex gap-4">
+                                <span class="bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center font-bold text-slate-500 shrink-0">2</span>
+                                <p class="text-slate-700 text-lg">Saltea en una sartén caliente con un toque de sazón peruana hasta que dore.</p>
+                            </div>
+                            <div class="flex gap-4">
+                                <span class="bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center font-bold text-slate-500 shrink-0">3</span>
+                                <p class="text-slate-700 text-lg">¡Sirve y disfruta! Has evitado que estos alimentos se pierdan.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-3">
+                            <i data-lucide="lightbulb" class="text-blue-500 w-6 h-6"></i>
+                            <p class="text-sm text-blue-800 font-medium italic"><b>Tip de Ahorro:</b> Si te falta algo, cómpralo abajo. ¡No vayas al súper sin lista!</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 p-8 rounded-[2.5rem] shadow-xl text-white">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="text-green-400"></i>
+                            ¿Te falta algo para esta receta?
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="https://www.plazavea.com.pe/busqueda?ft=${ingrediente}" target="_blank" class="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all text-center">
+                                <p class="font-black italic text-red-400">plazaVea</p>
+                            </a>
+                            <a href="https://www.tottus.com.pe/buscar?q=${ingrediente}" target="_blank" class="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all text-center">
+                                <p class="font-black text-green-400">TOTTUS</p>
+                            </a>
+                            <a href="https://www.makro.pe/busqueda?ft=${ingrediente}" target="_blank" class="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all text-center text-sm font-bold">MAKRO (Ahorro)</a>
+                            <a href="https://www.metro.pe/busqueda?ft=${ingrediente}" target="_blank" class="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all text-center font-bold">METRO</a>
+                            <a href="https://www.amazon.com/s?k=${ingrediente}&tag=zerogastoperu-21" target="_blank" class="col-span-2 p-4 bg-orange-500 hover:bg-orange-600 rounded-2xl transition-all text-center font-black flex items-center justify-center gap-2">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i> PEDIR POR AMAZON
+                            </a>
+                        </div>
                     </div>
                 </div>
             `;
 
-            // Refrescar iconos en el nuevo HTML inyectado
             lucide.createIcons();
-            
-            // Hacer scroll suave hacia abajo para ver los resultados
-            contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     </script>
 </body>
