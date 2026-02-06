@@ -31,7 +31,6 @@
             <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white transition-all">
                 <button onclick="document.getElementById('fileInput').click()" class="p-2 text-slate-500"><i data-lucide="paperclip"></i></button>
                 <textarea id="userInput" rows="1" placeholder="¿Qué cocinamos hoy?" class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 resize-none py-2 px-1 outline-none"></textarea>
-                <input type="file" id="fileInput" class="hidden" accept="image/*,video/*">
                 <button id="voiceBtn" onclick="toggleVoice()" class="p-2 text-slate-500"><i data-lucide="mic"></i></button>
             </div>
             <button onclick="sendMessage()" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
@@ -43,12 +42,12 @@
     <script>
         lucide.createIcons();
         
-        // 1. LLAVE NUEVA ACTUALIZADA
+        // TU NUEVA LLAVE DE LA CAPTURA
         const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; 
 
         let chatHistory = [
-            { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de Plaza Vea, Tottus, Metro, Vivanda y Amazon si faltan ingredientes." }] },
-            { role: "model", parts: [{ text: "Entendido. Soy tu asistente ZeroGasto AI especializado en Perú. ¡Empecemos!" }] }
+            { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de locales si faltan ingredientes." }] },
+            { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
         ];
 
         const chatWindow = document.getElementById('chatWindow');
@@ -71,7 +70,7 @@
             chatHistory.push({ role: "user", parts: [{ text: text }] });
 
             try {
-                // 2. URL TÉCNICA CORREGIDA (SIN ESPACIOS NI PUNTOS EXTRA)
+                // EL CAMBIO CLAVE: gemini-1.5-flash es el nombre real para la API
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
                 
                 const response = await fetch(url, {
@@ -87,11 +86,10 @@
                     chatHistory.push({ role: "model", parts: [{ text: aiText }] });
                     addMessage(aiText);
                 } else {
-                    console.error("Error de la API:", data);
-                    addMessage("Casi listo. Si ves este mensaje, refresca la página o verifica que tu nueva llave no tenga restricciones de IP en Google Cloud.");
+                    console.error(data);
+                    addMessage("Error de respuesta. Por favor, intenta de nuevo en unos segundos.");
                 }
             } catch (e) {
-                console.error("Error de conexión:", e);
                 addMessage("Error de conexión. Revisa tu internet.");
             }
         }
