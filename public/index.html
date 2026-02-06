@@ -6,19 +6,81 @@
     <title>ZeroGasto AI - Ahorro en Perú</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .primary-bg { background-color: #22c55e; }
+        .primary-text { color: #22c55e; }
+    </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-[#F9F7F2] font-sans min-h-screen">
     <div id="root">
-        <div class="flex flex-col items-center justify-center min-h-screen text-center p-4">
-            <h1 class="text-3xl font-bold text-green-600 mb-4">🥗 ZeroGasto AI</h1>
-            <p class="text-gray-600">Cargando tu asistente de ahorro para Makro, Tottus, Metro y más...</p>
-        </div>
+        <main class="max-w-4xl mx-auto px-6 pt-16 pb-12">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-green-500 rounded-3xl mb-6 shadow-xl rotate-3 border-4 border-white text-white">
+                    <i data-lucide="chef-hat" class="w-10 h-10"></i>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black text-slate-900 mb-4 tracking-tight">
+                    ZeroGasto <span class="text-green-500 italic">AI</span>
+                </h1>
+                <p class="text-lg text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Escanea tus ingredientes. Nuestra IA en <span class="text-red-600 font-bold">Perú</span> optimiza tu compra en <b>Makro, Tottus, Plaza Vea y Amazon.</b>
+                </p>
+            </div>
+
+            <div class="max-w-2xl mx-auto mb-16">
+                <div class="relative group">
+                    <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </div>
+                    <input type="text" id="ingredienteInput" placeholder="¿Qué ingredientes tienes?" 
+                           class="w-full h-20 pl-14 pr-40 rounded-3xl border-0 bg-white text-xl focus:ring-4 focus:ring-green-500/20 transition-all outline-none shadow-xl shadow-slate-200/50">
+                    
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+                        <button onclick="document.getElementById('fileInput').click()" class="p-3 bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 hover:text-green-600 transition-all">
+                            <i data-lucide="camera" class="w-6 h-6"></i>
+                        </button>
+                        <button onclick="generarReceta()" class="h-14 px-6 bg-green-500 text-white rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            <span>Cocinar</span>
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" class="hidden" accept="image/*,video/*">
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Ahorro</span>
+                    <p class="font-bold text-slate-800">Plaza Vea / Metro</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Mayorista</span>
+                    <p class="font-bold text-slate-800">Makro</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Calidad</span>
+                    <p class="font-bold text-slate-800">Tottus / Wong</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Internacional</span>
+                    <p class="font-bold text-slate-800">Amazon</p>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Aquí es donde "pintaremos" tu Home.js en el siguiente paso
-        console.log("Sitio listo para recibir el código de ZeroGasto");
+        // Inicializar Iconos
         lucide.createIcons();
+
+        function generarReceta() {
+            const input = document.getElementById('ingredienteInput').value;
+            if(!input) {
+                alert("Por favor, escribe un ingrediente primero.");
+                return;
+            }
+            alert("¡IA Conectada! Buscando ofertas para " + input + " en Tottus, Makro y Amazon...");
+            // Aquí conectaremos la lógica de tus botones de afiliados
+        }
     </script>
 </body>
 </html>
