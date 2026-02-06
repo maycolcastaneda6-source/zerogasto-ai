@@ -1,0 +1,235 @@
+RecipeView.js - txt
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, Share2, Clock, ChefHat, Lightbulb, ShoppingCart, ExternalLink } from 'lucide-react';
+import { toast, Toaster } from 'sonner';
+
+const RecipeView = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [recipe, setRecipe] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.recipe) {
+      setRecipe(location.state.recipe);
+    } else {
+      const history = JSON.parse(localStorage.getItem('recipeHistory') || '[]');
+      const foundRecipe = history.find(r => r.id === id);
+      if (foundRecipe) {
+        setRecipe(foundRecipe);
+      } else {
+        toast.error('Receta no encontrada');
+        navigate('/');
+      }
+    }
+  }, [id, location.state, navigate]);
+
+  useEffect(() => {
+    if (recipe) {
+      const favorites = JSON.parse(localStorage.getItem('recipeFavorites') || '[]');
+      setIsFavorite(favorites.some(f => f.id === recipe.id));
+    }
+  }, [recipe]);
+
+  const toggleFavorite = () => {
+    if (!recipe) return;
+    const favorites = JSON.parse(localStorage.getItem('recipeFavorites') || '[]');
+    if (isFavorite) {
+      const newFavorites = favorites.filter(f => f.id !== recipe.id);
+      localStorage.setItem('recipeFavorites', JSON.stringify(newFavorites));
+      setIsFavorite(false);
+      toast.success('Eliminado de favoritos');
+    } else {
+      favorites.unshift(recipe);
+      localStorage.setItem('recipeFavorites', JSON.stringify(favorites));
+      setIsFavorite(true);
+      toast.success('Agregado a favoritos');
+    }
+  };
+
+  const handleShare = () => {
+    if (!recipe) return;
+    const shareText = `${recipe.title}\n\nIngredientes: ${recipe.ingredients.join(', ')}\n\nGenerado con ZeroGasto Perú`;
+    if (navigator.share) {
+      navigator.share({ title: recipe.title, text: shareText }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast.success('Receta copiada al portapapeles');
+    }
+  };
+
+  if (!recipe) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <ChefHat className="w-16 h-16 text-muted-foreground mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Cargando tu receta peruana...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Toaster position="top-center" richColors />
+      
+      {/* Header */}
+      <header className="bg-card border-b border-border sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            <span>Volver</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={handleShare} className="p-2 rounded-full hover:bg-muted transition-colors">
+              <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+            </button>
+            <button onClick={toggleFavorite} className="p-2 rounded-full hover:bg-muted transition-colors">
+              <Heart
+                className={`w-5 h-5 ${isFavorite ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
+                strokeWidth={1.5}
+              />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 tracking-tight">
+            {recipe.title}
+          </h1>
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm">{recipe.time_constraint}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ChefHat className="w-4 h-4" />
+              <span className="text-sm">{recipe.ingredients.length} ingredientes</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Ingredients */}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">Ingredientes</h2>
+          <ul className="space-y-2">
+            {recipe.ingredients.map((ing, idx) => (
+              <li key={idx} className="flex items-start gap-3 text-foreground">
+                <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                <span>{ing}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Steps */}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">Preparación</h2>
+          <div className="space-y-4">
+            {recipe.steps.map((step, idx) => (
+              <div key={idx} className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold">
+                  {idx + 1}
+                </div>
+                <p className="text-foreground pt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Savings Tip */}
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <Lightbulb className="w-6 h-6 text-green-600 mt-1" />
+            <div>
+              <h3 className="font-bold text-green-800">Tip de Ahorro ZeroGasto</h3>
+              <p className="text-green-700 text-sm">{recipe.savings_tip}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN MULTI-TIENDA PERÚ + AMAZON - MONETIZACIÓN */}
+        {recipe.suggested_items && recipe.suggested_items.length > 0 && (
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-6 shadow-lg mb-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center shadow-md">
+                <ShoppingCart className="w-5 h-5 text-white" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 leading-tight">¿Te falta algún ingrediente?</h3>
+                <p className="text-xs text-slate-500">Compara precios en Perú o compra en Amazon</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+              {recipe.suggested_items.map((item, index) => (
+                <div key={index} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-indigo-300 transition-colors shadow-sm">
+                  <div className="mb-4">
+                    <h4 className="font-bold text-lg text-slate-900">{item.name}</h4>
+                    <p className="text-sm text-slate-600 italic">{item.description}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* PLAZA VEA */}
+                    <a
+                      href={`https://www.plazavea.com.pe/search/?_query=${encodeURIComponent(item.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center bg-[#f0142c] text-white rounded-lg py-2.5 text-[10px] font-black uppercase tracking-wider hover:bg-[#d01025] transition-all shadow-sm"
+                    >
+                      Plaza Vea
+                    </a>
+
+                    {/* METRO */}
+                    <a
+                      href={`https://www.metro.pe/busca?ft=${encodeURIComponent(item.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center bg-[#76bc21] text-white rounded-lg py-2.5 text-[10px] font-black uppercase tracking-wider hover:bg-[#65a31b] transition-all shadow-sm"
+                    >
+                      Metro
+                    </a>
+
+                    {/* REAL PLAZA */}
+                    <a
+                      href={`https://www.realplaza.com/buscar?q=${encodeURIComponent(item.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center bg-[#5c2d91] text-white rounded-lg py-2.5 text-[10px] font-black uppercase tracking-wider hover:bg-[#4a2475] transition-all shadow-sm"
+                    >
+                      Real Plaza
+                    </a>
+
+                    {/* AMAZON CON TU ID REAL */}
+                    <a
+                      href={`https://www.amazon.com/s?k=${encodeURIComponent(item.name)}&tag=zerogastoperu-21`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center bg-[#FF9900] text-black rounded-lg py-2.5 text-[10px] font-black uppercase tracking-wider hover:bg-[#e68a00] transition-all shadow-sm"
+                    >
+                      Amazon
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-center text-slate-400 mt-6 uppercase tracking-widest">
+              ZeroGasto Perú - Ahorrando en cada comida
+            </p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default RecipeView;

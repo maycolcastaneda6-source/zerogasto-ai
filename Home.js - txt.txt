@@ -1,0 +1,175 @@
+Home.js - txt
+
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChefHat, Search, Sparkles, ShoppingBag, TrendingUp, Camera, Video, Image as ImageIcon, X } from 'lucide-react';
+import { toast, Toaster } from 'sonner';
+
+const Home = () => {
+  const [ingredients, setIngredients] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Función para obtener la URL del backend dinámicamente
+  const getBackendUrl = () => {
+    const currentUrl = window.location.href;
+    if (currentUrl.includes('emergentagent.com')) {
+      // Intenta construir la URL del backend basada en la URL actual de la vista previa
+      return currentUrl.replace('frontend', 'backend').split('?')[0] + 'generate-recipe';
+    }
+    // URL por defecto (la que tenías anteriormente)
+    return 'https://be-7660fe-f98c-47e4-bbae-c57b7c0ecad6.preview.emergentagent.com/generate-recipe';
+  };
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    
+    if (!ingredients.trim() && !selectedFile) {
+      toast.error('Ingresa ingredientes o sube una imagen/video');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const apiUrl = getBackendUrl();
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ingredients: ingredients || "Ingredientes detectados por IA",
+          has_media: !!selectedFile 
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Servidor no responde');
+
+      const data = await response.json();
+      const recipeWithId = { ...data, id: Date.now().toString() };
+      
+      const history = JSON.parse(localStorage.getItem('recipeHistory') || '[]');
+      localStorage.setItem('recipeHistory', JSON.stringify([recipeWithId, ...history.slice(0, 19)]));
+      
+      navigate(`/recipe/${recipeWithId.id}`, { state: { recipe: recipeWithId } });
+    } catch (error) {
+      console.error("Error detallado:", error);
+      toast.error('Error de conexión con la IA. Verifica tus créditos en Emergent o intenta más tarde.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      toast.success(`Archivo listo: ${file.name}`);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F9F7F2] font-sans">
+      <Toaster position="top-center" richColors />
+      
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+        accept="image/*,video/*"
+      />
+
+      <main className="max-w-4xl mx-auto px-6 pt-16 pb-12">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-primary rounded-[2.5rem] mb-6 shadow-2xl shadow-primary/20 rotate-3 border-4 border-white">
+            <ChefHat className="w-12 h-12 text-white" />
+          </div>
+          <h1 className="text-6xl md:text-7xl font-black text-slate-900 mb-4 tracking-tight">
+            ZeroGasto <span className="text-primary italic">AI</span>
+          </h1>
+          <p className="text-xl text-slate-500 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Escanea tus ingredientes con la cámara. 
+            Nuestra IA en <span className="text-red-600 font-bold">Perú</span> optimiza tu compra.
+          </p>
+        </div>
+
+        <div className="max-w-2xl mx-auto mb-16">
+          <form onSubmit={handleGenerate} className="relative mb-4">
+            <div className="relative group">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2">
+                <Search className="w-6 h-6 text-slate-400" />
+              </div>
+              
+              <input
+                type="text"
+                value={ingredients}
+                onChange={(e) => setIngredients(e.target.value)}
+                placeholder="¿Qué ingredientes tienes?"
+                className="w-full h-20 pl-14 pr-44 rounded-3xl border-0 bg-white text-xl focus:ring-4 focus:ring-primary/20 transition-all outline-none shadow-xl shadow-slate-200/50"
+              />
+
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="p-3 bg-slate-50 text-slate-500 rounded-2xl hover:bg-slate-100 hover:text-primary transition-all flex items-center gap-1"
+                >
+                  <Camera className="w-6 h-6" />
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="h-14 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-primary/30"
+                >
+                  {isLoading ? (
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      <span className="hidden sm:inline">Cocinar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {selectedFile && (
+            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-primary/20 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-primary/10 p-2 rounded-lg text-primary">
+                {selectedFile.type.includes('video') ? <Video className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
+              </div>
+              <span className="text-sm font-medium text-slate-700 flex-1 truncate">{selectedFile.name}</span>
+              <button onClick={() => setSelectedFile(null)} className="p-1 hover:bg-slate-100 rounded-full text-slate-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white shadow-sm">
+            <TrendingUp className="w-8 h-8 text-red-500 mb-4" />
+            <h3 className="font-bold text-lg mb-2">Ahorro</h3>
+            <p className="text-sm text-slate-500">Precios reales de Plaza Vea y Metro.</p>
+          </div>
+          <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white shadow-sm">
+            <ShoppingBag className="w-8 h-8 text-orange-500 mb-4" />
+            <h3 className="font-bold text-lg mb-2">Amazon</h3>
+            <p className="text-sm text-slate-500">Recibe ingredientes hoy mismo.</p>
+          </div>
+          <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white shadow-sm">
+            <Sparkles className="w-8 h-8 text-blue-500 mb-4" />
+            <h3 className="font-bold text-lg mb-2">Visión AI</h3>
+            <p className="text-sm text-slate-500">Analizamos tus fotos para cocinar.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Home;
