@@ -10,8 +10,6 @@
         .chat-bubble { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .bg-chat { background-color: #f0f2f5; }
-        .recording { animation: pulse-red 1.5s infinite; color: #ef4444 !important; }
-        @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="bg-chat font-sans min-h-screen flex flex-col">
@@ -45,10 +43,11 @@
     <script>
         lucide.createIcons();
         
-        // CONFIGURACIÓN DE IA
-        const API_KEY = "AIzaSyAhMG7gkCCSdyFql-BqmqiYhVEHomOJLOM"; //
+        // REVISA QUE ESTA LLAVE SEA LA CORRECTA
+        const API_KEY = "AIzaSyAhMG7gkCCSdyFql-BqmqiYhVEHomOJLOM"; 
+
         let chatHistory = [
-            { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de Plaza Vea, Tottus, Metro, vivanda y amazon si faltan ingredientes." }] },
+            { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de Plaza Vea, Tottus, Metro, Vivanda y Amazon si faltan ingredientes." }] },
             { role: "model", parts: [{ text: "Entendido. Soy tu asistente ZeroGasto AI especializado en Perú. ¡Empecemos!" }] }
         ];
 
@@ -64,43 +63,43 @@
         }
 
         async function sendMessage() {
-    const text = userInput.value.trim();
-    if (!text) return; 
+            const text = userInput.value.trim();
+            if (!text) return; 
 
-    addMessage(text, true);
-    userInput.value = '';
-    chatHistory.push({ role: "user", parts: [{ text: text }] });
+            addMessage(text, true);
+            userInput.value = '';
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
 
-    try {
-        // USAR COMILLAS INVERTIDAS AQUÍ:
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: chatHistory })
-        });
+            try {
+                // LLAMADA TÉCNICA CORRECTA
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: chatHistory })
+                });
 
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0].content) {
-            const aiText = data.candidates[0].content.parts[0].text;
-            chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-            addMessage(aiText);
-        } else {
-            console.error(data); // Esto nos dirá el error real en la consola
-            addMessage("La IA recibió el mensaje pero no pudo procesarlo. Revisa si la API Key en Google AI Studio sigue activa.");
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+                    addMessage(aiText);
+                } else {
+                    console.error("Error de la API:", data);
+                    addMessage("La IA recibió el mensaje pero hay un problema con la API Key. Por favor, crea una nueva en Google AI Studio.");
+                }
+            } catch (e) {
+                console.error("Error de conexión:", e);
+                addMessage("Error de conexión. Revisa tu internet o la configuración del sitio.");
+            }
         }
-    } catch (e) {
-        addMessage("Error de conexión. Intenta refrescar la página.");
-    }
-}
 
-        // Reconocimiento de voz (opcional)
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-PE';
         recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendMessage(); };
-        function toggleVoice() { recognition.start(); }
+        function toggleVoice() { try { recognition.start(); } catch(e) {} }
     </script>
 </body>
 </html>
