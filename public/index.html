@@ -66,7 +66,7 @@
         async function sendMessage() {
     const text = userInput.value.trim();
     // Ahora solo bloqueamos si el texto está vacío
-    if (!text) return; 
+    addMessage(text, true); 
 
     addMessage(text, true);
     userInput.value = '';
