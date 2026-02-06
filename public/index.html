@@ -12,9 +12,11 @@
         .bg-chat { background-color: #f0f2f5; }
         #chatWindow::-webkit-scrollbar { width: 6px; }
         #chatWindow::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .recording { animation: pulse-red 1.5s infinite; color: #ef4444 !important; }
+        @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
-<body class="bg-chat font-sans min-h-screen flex flex-col">
+<body class="bg-chat font-sans min-h-screen flex flex-col text-slate-900">
 
     <header class="bg-green-600 p-4 text-white shadow-md sticky top-0 z-50 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -24,35 +26,40 @@
             <div>
                 <h1 class="font-black leading-none text-lg">ZeroGasto AI</h1>
                 <span class="text-[10px] opacity-90 flex items-center gap-1 uppercase tracking-wider">
-                    <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span> Sistema Inteligente Activo
+                    <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span> Conversación Activa
                 </span>
             </div>
         </div>
         <div class="flex gap-4 opacity-80">
-            <i data-lucide="phone" class="w-5 h-5"></i>
+            <i data-lucide="camera" class="w-5 h-5 cursor-pointer" onclick="document.getElementById('fileInput').click()"></i>
             <i data-lucide="more-vertical" class="w-5 h-5"></i>
         </div>
     </header>
 
     <main id="chatWindow" class="flex-1 max-w-2xl mx-auto w-full p-4 overflow-y-auto space-y-4">
         <div class="chat-bubble flex justify-start">
-            <div class="bg-white text-slate-700 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-slate-100">
-                <p>¡Hola! Soy tu asistente de **ZeroGasto**. 👋</p>
-                <p class="mt-2 text-sm">Puedo ayudarte a crear recetas con lo que tienes. **Escríbeme tus ingredientes** o **sube una foto/video** de tu refrigerador para empezar.</p>
+            <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-slate-100">
+                <p>¡Hola! Soy tu asistente de **ZeroGasto**. 👨‍🍳</p>
+                <p class="mt-2 text-sm">Dime qué tienes en mente, sube una foto de tu refri o **presiona el micrófono** para hablarme.</p>
             </div>
         </div>
     </main>
 
     <footer class="bg-white p-4 border-t border-slate-200 sticky bottom-0">
         <div class="max-w-2xl mx-auto flex items-end gap-2">
-            <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500 transition-all">
+            <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500 transition-all shadow-inner">
                 <button onclick="document.getElementById('fileInput').click()" class="p-2 text-slate-500 hover:text-green-600 transition-colors">
                     <i data-lucide="paperclip"></i>
                 </button>
-                <textarea id="userInput" rows="1" placeholder="Escribe ingredientes o sube una foto..." 
+                <textarea id="userInput" rows="1" placeholder="Habla o escribe aquí..." 
                     class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 resize-none py-2 px-1 text-base outline-none"></textarea>
                 <input type="file" id="fileInput" class="hidden" accept="image/*,video/*" onchange="handleFileUpload(event)">
+                
+                <button id="voiceBtn" onclick="toggleVoice()" class="p-2 text-slate-500 hover:text-red-500 transition-colors">
+                    <i data-lucide="mic"></i>
+                </button>
             </div>
+            
             <button onclick="sendMessage()" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
                 <i data-lucide="send" class="w-6 h-6"></i>
             </button>
@@ -63,17 +70,35 @@
         lucide.createIcons();
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
+        const voiceBtn = document.getElementById('voiceBtn');
+        
+        // Configuración de Reconocimiento de Voz
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+        if (recognition) {
+            recognition.lang = 'es-PE';
+            recognition.continuous = false;
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                toggleVoice(); // Detener visualmente
+                sendMessage(); // Enviar automáticamente al terminar de hablar
+            };
+        }
 
-        // Ajustar altura del textarea automáticamente
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+        function toggleVoice() {
+            if (!recognition) return alert("Tu navegador no soporta dictado por voz.");
+            voiceBtn.classList.toggle('recording');
+            if (voiceBtn.classList.contains('recording')) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        }
 
         function addMessage(content, isUser = false) {
             const div = document.createElement('div');
             div.className = `chat-bubble flex ${isUser ? 'justify-end' : 'justify-start'}`;
-            
             div.innerHTML = `
                 <div class="${isUser ? 'bg-green-600 text-white rounded-tr-none' : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'} p-4 rounded-2xl shadow-sm max-w-[85%]">
                     ${content}
@@ -87,9 +112,9 @@
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                addMessage(`📎 Archivo enviado: <b>${file.name}</b>`, true);
+                addMessage(`📎 He subido una foto/video: <b>${file.name}</b>`, true);
                 setTimeout(() => {
-                    addMessage("¡Archivo recibido! 🧐 Estoy analizando la imagen/video de tus ingredientes... Veo productos frescos. ¿Quieres una receta rápida de 10 min o algo más elaborado?");
+                    addMessage("¡Análisis visual completo! 🧐 Veo ingredientes para un saltado o una sopa. ¿Qué prefieres cocinar hoy?");
                 }, 1000);
             }
         }
@@ -100,39 +125,28 @@
 
             addMessage(text, true);
             userInput.value = '';
-            userInput.style.height = 'auto';
-
-            // Simulación de IA con Lógica Real
+            
             setTimeout(() => {
                 let response = "";
                 const inputLower = text.toLowerCase();
 
+                // Lógica lógica corregida (evitando errores previos como el de la imagen d3c51b)
                 if (inputLower.includes("arroz") && inputLower.includes("pato")) {
                     response = `
                         <div class="space-y-3">
-                            <p class="font-bold text-green-700">👨‍🍳 ¡Transformación Maestra!</p>
-                            <p>Para tu <b>arroz con pato</b>, no lo cortes en cubos. Mejor hagamos un <b>Calentado Gourmet</b>:</p>
-                            <ul class="text-sm list-disc pl-4 space-y-1">
-                                <li>Deshuesa el pato y saltéalo con cebolla roja.</li>
-                                <li>Agrega el arroz al final para que tome el sabor del aderezo.</li>
-                            </ul>
-                            <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Completar receta en:</p>
+                            <p class="font-bold text-green-700 underline italic">Sugerencia del Chef:</p>
+                            <p>Con ese **arroz con pato**, la mejor opción es un <b>Tacu Tacu de Pato</b>. No cortes nada, solo mezcla el arroz con un poco de pallares o frijoles y dóralo en la sartén.</p>
+                            <div class="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                                <p class="text-xs font-bold text-blue-800 mb-2 uppercase">Ahorro en Supermercados:</p>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <a href="https://www.plazavea.com.pe/busqueda?ft=cebolla%20roja" target="_blank" class="text-xs bg-white p-2 rounded border text-center font-bold text-red-600 italic shadow-sm">plazaVea</a>
-                                    <a href="https://www.tottus.com.pe/buscar?q=cebolla%20roja" target="_blank" class="text-xs bg-white p-2 rounded border text-center font-bold text-green-600 shadow-sm">TOTTUS</a>
+                                    <a href="https://www.plazavea.com.pe/busqueda?ft=frijoles" target="_blank" class="text-xs bg-white p-2 rounded border text-center font-bold text-red-600 shadow-sm">plazaVea</a>
+                                    <a href="https://www.tottus.com.pe/buscar?q=frijoles" target="_blank" class="text-xs bg-white p-2 rounded border text-center font-bold text-green-600 shadow-sm">TOTTUS</a>
                                 </div>
                             </div>
                         </div>
                     `;
                 } else {
-                    response = `
-                        <p>Analizando tus ingredientes: <b>${text}</b>.</p>
-                        <p class="mt-2 text-sm">Suena a un excelente <b>Saltado de Aprovechamiento</b>. ¿Tienes aceite y sal en casa o quieres comparar precios en <b>Makro</b> o <b>Amazon</b>?</p>
-                        <a href="https://www.amazon.com/s?k=${text}&tag=zerogastoperu-21" target="_blank" class="mt-3 block bg-orange-100 p-2 rounded-lg text-center text-orange-700 font-bold text-xs border border-orange-200">
-                            🔍 Buscar complementos en Amazon
-                        </a>
-                    `;
+                    response = `Perfecto, anotado: **${text}**. <br><br>Podemos preparar algo increíble. ¿Quieres ver precios de ingredientes adicionales en <a href="https://www.amazon.com/s?k=${text}&tag=zerogastoperu-21" target="_blank" class="font-black text-orange-600 underline">Amazon</a>?`;
                 }
                 addMessage(response);
             }, 1000);
