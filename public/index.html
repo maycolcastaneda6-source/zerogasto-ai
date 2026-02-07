@@ -52,10 +52,12 @@
         import { GoogleGenerativeAI } from "@google/generative-ai";
         lucide.createIcons();
 
-        // REEMPLAZA ESTA LLAVE POR LA NUEVA QUE CREES EN UN "PROYECTO NUEVO"
+        // 1. TU NUEVA CLAVE INSERTADA
         const API_KEY = "AIzaSyD5oKlEnzsPjbqW30T5ZB1071Sxz2MyyUQ"; 
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        
+        // 2. CAMBIO A GEMINI 2.0 FLASH (Más rápido y moderno)
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         let chat = model.startChat({
             history: [
@@ -88,15 +90,13 @@
                 addMessage(response.text());
             } catch (e) {
                 console.error(e);
-                addMessage("La IA no pudo responder. Revisa si tu API Key tiene restricciones en Google Cloud Console.");
+                addMessage("Hubo un error de conexión. Prueba abriendo la web en Modo Incógnito o revisa los permisos en Google Cloud.");
             }
         }
 
-        // Configuración de eventos
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
 
-        // Función de Voz
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-PE';
         recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
