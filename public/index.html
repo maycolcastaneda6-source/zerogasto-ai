@@ -29,11 +29,9 @@
     <footer class="bg-white p-4 border-t border-slate-200 sticky bottom-0">
         <div class="max-w-2xl mx-auto flex items-end gap-2">
             <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white transition-all">
-                <button onclick="document.getElementById('fileInput').click()" class="p-2 text-slate-500"><i data-lucide="paperclip"></i></button>
                 <textarea id="userInput" rows="1" placeholder="¿Qué cocinamos hoy?" class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 resize-none py-2 px-1 outline-none"></textarea>
-                <button id="voiceBtn" onclick="toggleVoice()" class="p-2 text-slate-500"><i data-lucide="mic"></i></button>
             </div>
-            <button onclick="sendMessage()" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
+            <button id="sendBtn" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
                 <i data-lucide="send"></i>
             </button>
         </div>
@@ -46,24 +44,26 @@
         }
       }
     </script>
+
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
         lucide.createIcons();
 
-        // 1. CONFIGURACIÓN
-        const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; // Tu llave activa
+        // TU LLAVE ACTIVA DE LA CAPTURA
+        const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; 
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let chat = model.startChat({
             history: [
-                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de locales si faltan ingredientes." }] },
-                { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
+                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. Da recetas creativas." }] },
+                { role: "model", parts: [{ text: "¡Hola! Soy ZeroGasto AI. ¿Qué ingredientes tienes?" }] }
             ],
         });
 
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
@@ -73,7 +73,7 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        async function sendMessage() {
+        async function handleSend() {
             const text = userInput.value.trim();
             if (!text) return; 
 
@@ -83,19 +83,15 @@
             try {
                 const result = await chat.sendMessage(text);
                 const response = await result.response;
-                const aiText = response.text();
-                addMessage(aiText);
+                addMessage(response.text());
             } catch (e) {
                 console.error(e);
-                addMessage("Error de seguridad (CORS) o de API. Intenta abrir la web en modo incógnito.");
+                addMessage("Error de conexión con Google. Asegúrate de que tu API Key no tenga restricciones en Google Cloud.");
             }
         }
 
-        // Hacer la función accesible globalmente para el botón
-        window.sendMessage = sendMessage;
-
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'es-PE';
-        recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendMessage(); };
-        window.toggleVoice = () => { try { recognition.start(); } catch(e) {} };
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
     </script>
+</body>
+</html>
