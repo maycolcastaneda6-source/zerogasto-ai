@@ -14,7 +14,7 @@
 </head>
 <body class="bg-chat font-sans min-h-screen flex flex-col">
 
-    <header class="bg-green-600 p-4 text-white shadow-md sticky top-0 z-50 flex items-center gap-3">
+    <header class="bg-green-600 p-4 text-white shadow-md flex items-center gap-3">
         <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-600">
             <i data-lucide="bot"></i>
         </div>
@@ -29,7 +29,14 @@
     <footer class="bg-white p-4 border-t border-slate-200 sticky bottom-0">
         <div class="max-w-2xl mx-auto flex items-end gap-2">
             <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white transition-all">
+                <button onclick="document.getElementById('fileInput').click()" class="p-2 text-slate-500 hover:text-green-600">
+                    <i data-lucide="paperclip"></i>
+                </button>
                 <textarea id="userInput" rows="1" placeholder="¿Qué cocinamos hoy?" class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 resize-none py-2 px-1 outline-none"></textarea>
+                <input type="file" id="fileInput" class="hidden">
+                <button id="voiceBtn" class="p-2 text-slate-500 hover:text-green-600">
+                    <i data-lucide="mic"></i>
+                </button>
             </div>
             <button id="sendBtn" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
                 <i data-lucide="send"></i>
@@ -38,32 +45,29 @@
     </footer>
 
     <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
+      { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
     </script>
 
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
         lucide.createIcons();
 
-        // TU LLAVE ACTIVA DE LA CAPTURA
+        // REEMPLAZA ESTA LLAVE POR LA NUEVA QUE CREES EN UN "PROYECTO NUEVO"
         const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; 
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let chat = model.startChat({
             history: [
-                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. Da recetas creativas." }] },
-                { role: "model", parts: [{ text: "¡Hola! Soy ZeroGasto AI. ¿Qué ingredientes tienes?" }] }
+                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas locales." }] },
+                { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
             ],
         });
 
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
@@ -76,22 +80,27 @@
         async function handleSend() {
             const text = userInput.value.trim();
             if (!text) return; 
-
             addMessage(text, true);
             userInput.value = '';
-
             try {
                 const result = await chat.sendMessage(text);
                 const response = await result.response;
                 addMessage(response.text());
             } catch (e) {
                 console.error(e);
-                addMessage("Error de conexión con Google. Asegúrate de que tu API Key no tenga restricciones en Google Cloud.");
+                addMessage("La IA no pudo responder. Revisa si tu API Key tiene restricciones en Google Cloud Console.");
             }
         }
 
+        // Configuración de eventos
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+
+        // Función de Voz
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-PE';
+        recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
+        voiceBtn.onclick = () => { try { recognition.start(); } catch(e) {} };
     </script>
 </body>
 </html>
