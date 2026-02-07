@@ -39,16 +39,28 @@
         </div>
     </footer>
 
-    <script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
         lucide.createIcons();
-        
-        // TU NUEVA LLAVE DE LA CAPTURA
-        const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; 
 
-        let chatHistory = [
-            { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de locales si faltan ingredientes." }] },
-            { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
-        ];
+        // 1. CONFIGURACIÓN
+        const API_KEY = "AIzaSyBUlsQB9PeMUXQvSFlOwoLTjSPruxTdXQg"; // Tu llave activa
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        let chat = model.startChat({
+            history: [
+                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas de locales si faltan ingredientes." }] },
+                { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
+            ],
+        });
 
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
@@ -67,37 +79,23 @@
 
             addMessage(text, true);
             userInput.value = '';
-            chatHistory.push({ role: "user", parts: [{ text: text }] });
 
             try {
-                // EL CAMBIO CLAVE: gemini-1.5-flash es el nombre real para la API
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: chatHistory })
-                });
-
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0].content) {
-                    const aiText = data.candidates[0].content.parts[0].text;
-                    chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-                    addMessage(aiText);
-                } else {
-                    console.error(data);
-                    addMessage("Error de respuesta. Por favor, intenta de nuevo en unos segundos.");
-                }
+                const result = await chat.sendMessage(text);
+                const response = await result.response;
+                const aiText = response.text();
+                addMessage(aiText);
             } catch (e) {
-                addMessage("Error de conexión. Revisa tu internet.");
+                console.error(e);
+                addMessage("Error de seguridad (CORS) o de API. Intenta abrir la web en modo incógnito.");
             }
         }
+
+        // Hacer la función accesible globalmente para el botón
+        window.sendMessage = sendMessage;
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-PE';
         recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendMessage(); };
-        function toggleVoice() { try { recognition.start(); } catch(e) {} }
+        window.toggleVoice = () => { try { recognition.start(); } catch(e) {} };
     </script>
-</body>
-</html>
