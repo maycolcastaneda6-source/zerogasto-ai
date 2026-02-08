@@ -3,44 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZeroGasto AI - Inteligencia Real</title>
+    <title>ZeroGasto AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .chat-bubble { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .bg-chat { background-color: #f0f2f5; }
-    </style>
 </head>
-<body class="bg-chat font-sans min-h-screen flex flex-col">
+<body class="bg-slate-100 min-h-screen flex flex-col">
 
-    <header class="bg-green-600 p-4 text-white shadow-md flex items-center gap-3">
-        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-600">
-            <i data-lucide="bot"></i>
-        </div>
-        <div>
-            <h1 class="font-black leading-none">ZeroGasto AI</h1>
-            <span class="text-[10px] uppercase tracking-wider opacity-80">Cerebro Gemini Activo</span>
-        </div>
+    <header class="bg-green-600 p-4 text-white shadow-lg text-center">
+        <h1 class="text-xl font-bold">ZeroGasto AI 2026</h1>
     </header>
 
-    <main id="chatWindow" class="flex-1 max-w-2xl mx-auto w-full p-4 overflow-y-auto space-y-4"></main>
+    <main id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4 max-w-2xl mx-auto w-full"></main>
 
-    <footer class="bg-white p-4 border-t border-slate-200 sticky bottom-0">
-        <div class="max-w-2xl mx-auto flex items-end gap-2">
-            <div class="flex-1 bg-slate-100 rounded-3xl p-2 flex items-center gap-2 border border-slate-200 focus-within:bg-white transition-all">
-                <button onclick="document.getElementById('fileInput').click()" class="p-2 text-slate-500 hover:text-green-600">
-                    <i data-lucide="paperclip"></i>
-                </button>
-                <textarea id="userInput" rows="1" placeholder="¿Qué cocinamos hoy?" class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-700 resize-none py-2 px-1 outline-none"></textarea>
-                <input type="file" id="fileInput" class="hidden">
-                <button id="voiceBtn" class="p-2 text-slate-500 hover:text-green-600">
-                    <i data-lucide="mic"></i>
-                </button>
-            </div>
-            <button id="sendBtn" class="bg-green-600 text-white p-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
-                <i data-lucide="send"></i>
-            </button>
+    <footer class="p-4 bg-white border-t">
+        <div class="max-w-2xl mx-auto flex gap-2">
+            <input type="text" id="userInput" placeholder="Escribe aquí..." class="flex-1 border rounded-lg p-2 outline-none">
+            <button id="sendBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg">Enviar</button>
         </div>
     </footer>
 
@@ -51,19 +29,11 @@
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        lucide.createIcons();
-
-        // LLAVE DE EMERGENCIA ACTIVA
-        const API_KEY = "AIzaSyBczSziol4NJSclGkyBm1Wv7UnTxjcdPuE";
+        // 1. PEGA AQUÍ TU NUEVA CLAVE RECIÉN CREADA
+        const API_KEY = "AIzaSyBvhqt2nfsZZABHyM9tfMge61LCzV6MvDw"; 
+        
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        let chat = model.startChat({
-            history: [
-                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Da recetas creativas." }] },
-                { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
-            ],
-        });
 
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
@@ -71,32 +41,33 @@
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
-            div.className = `chat-bubble flex ${isUser ? 'justify-end' : 'justify-start'}`;
-            div.innerHTML = `<div class="${isUser ? 'bg-green-600 text-white rounded-tr-none' : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'} p-4 rounded-2xl shadow-sm max-w-[85%]">${text}</div>`;
+            div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `<div class="${isUser ? 'bg-green-600 text-white' : 'bg-white text-slate-800'} p-3 rounded-lg shadow-sm max-w-[80%]">${text}</div>`;
             chatWindow.appendChild(div);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Mostrar saludo inicial
-        addMessage("¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?");
+        // Mensaje de prueba inicial
+        addMessage("¡Sistema listo! Prueba enviando un mensaje.");
 
         async function handleSend() {
             const text = userInput.value.trim();
-            if (!text) return; 
+            if (!text) return;
             addMessage(text, true);
             userInput.value = '';
+
             try {
-                const result = await chat.sendMessage(text);
+                const result = await model.generateContent(text);
                 const response = await result.response;
                 addMessage(response.text());
             } catch (e) {
-                console.error("Error:", e);
-                addMessage("Error 429: Google está saturado o bloqueó la IP. Espera unos minutos.");
+                console.error(e);
+                addMessage("Error de conexión. Revisa la consola (F12).");
             }
         }
 
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+        sendBtn.onclick = handleSend;
+        userInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
     </script>
 </body>
 </html>
