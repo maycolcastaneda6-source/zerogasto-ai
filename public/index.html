@@ -51,17 +51,16 @@
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // Inicializar iconos
         lucide.createIcons();
 
-        // Configuración limpia
+        // LLAVE DE EMERGENCIA ACTIVA
         const API_KEY = "AIzaSyBczSziol4NJSclGkyBm1Wv7UnTxjcdPuE";
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let chat = model.startChat({
             history: [
-                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Si te preguntan qué hacer con ingredientes, da recetas creativas y menciona ofertas locales." }] },
+                { role: "user", parts: [{ text: "Eres un experto en cocina peruana y ahorro. NUNCA sugieras cortar arroz en cubos. Da recetas creativas." }] },
                 { role: "model", parts: [{ text: "¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?" }] }
             ],
         });
@@ -69,7 +68,6 @@
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
@@ -78,6 +76,9 @@
             chatWindow.appendChild(div);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
+
+        // Mostrar saludo inicial
+        addMessage("¡Hola! Soy tu asistente ZeroGasto AI. ¿Qué tienes en tu cocina hoy?");
 
         async function handleSend() {
             const text = userInput.value.trim();
@@ -90,18 +91,12 @@
                 addMessage(response.text());
             } catch (e) {
                 console.error("Error:", e);
-                addMessage("Lo siento, hubo un error. Prueba refrescando la página.");
+                addMessage("Error 429: Google está saturado o bloqueó la IP. Espera unos minutos.");
             }
         }
 
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-
-        // Voz
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'es-PE';
-        recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
-        voiceBtn.onclick = () => { try { recognition.start(); } catch(e) {} };
     </script>
 </body>
 </html>
