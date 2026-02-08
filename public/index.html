@@ -50,21 +50,14 @@
 
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // Inicializar iconos
         lucide.createIcons();
 
-        // AQUÍ ESTABA EL ERROR: Solo necesitamos una declaración limpia del modelo
+        // Configuración limpia
         const API_KEY = "AIzaSyBczSziol4NJSclGkyBm1Wv7UnTxjcdPuE";
         const genAI = new GoogleGenerativeAI(API_KEY);
-
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            safetySettings: [
-                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-            ]
-        });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let chat = model.startChat({
             history: [
@@ -96,14 +89,15 @@
                 const response = await result.response;
                 addMessage(response.text());
             } catch (e) {
-                console.error("Error detallado:", e);
-                addMessage("Hubo un error de conexión. Asegúrate de que los escudos de Brave (el león) estén desactivados.");
+                console.error("Error:", e);
+                addMessage("Lo siento, hubo un error. Prueba refrescando la página.");
             }
         }
 
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
 
+        // Voz
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-PE';
         recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
